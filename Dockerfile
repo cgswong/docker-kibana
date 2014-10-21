@@ -7,7 +7,7 @@
 # 2014/10/15 cgwong [v0.1.0]: Initial creation.
 # ################################################################
 
-FROM dockerfile/java:oracle_java7
+FROM dockerfile/ubuntu
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Install Kibana
@@ -16,10 +16,10 @@ ENV KIBANA_VERSION 3.1.1
 ##ENV KIBANA_VERSION latest
 RUN mkdir -p /var/www
 WORKDIR /var/www
-RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-$KIBANA_VERSION.tar.gz \
-  && tar zxf kibana-$KIBANA_VERSION.tar.gz \
-  && rm -f kibana-$KIBANA_VERSION.tar.gz \
-  && ln -s kibana-$KIBANA_VERSION kibana
+RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz \
+  && tar zxf kibana-${KIBANA_VERSION}.tar.gz \
+  && rm -f kibana-${KIBANA_VERSION}.tar.gz \
+  && ln -s kibana-${KIBANA_VERSION} kibana
 
 # Copy in kibana.yml file for verion 4.x
 ##COPY config/kibana.yml /opt/kibana/conf/kibana.yml
@@ -31,13 +31,15 @@ RUN sed -i -e 's/elasticsearch: */elasticsearch: "http://localhost:80"/' /var/ww
 RUN mv /var/www/kibana/app/dashboards/default.json /var/www/kibana/app/dashboards/default-bkup.json \
     && cp/var/www/kibana/app/dashboards/logstash.json /var/www/kibana/app/dashboards/default.json
 
-# nginx installation - used for proxy/authention for Kibana
+# Setup nginx for proxy/authention for Kibana
+ENV NGINX_VERSION 1.7.6
+##ENV NGINX_VERSION latest
 RUN wget http://nginx.org/keys/nginx_signing.key \
     && apt-key -y COPY nginx_signing.key \
     && cat "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list \
 RUN apt-get -y update && apt-get -y install \
     apache2-utils \
-    nginx 
+    nginx=$NGINX_VERSION
 
 # Expose persistent nginx configuration storage area
 ##VOLUME ["/etc/nginx/nginx.d"]
