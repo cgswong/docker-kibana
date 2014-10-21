@@ -16,22 +16,34 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 ENV KIBANA_VERSION latest
 RUN mkdir -p /var/www
 WORKDIR /var/www
-RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-$KIBANA_VERSION.tar.gz && \
-  tar zxf kibana-$KIBANA_VERSION.tar.gz && rm -f kibana-$KIBANA_VERSION.tar.gz && ln -s kibana-$KIBANA_VERSION kibana
+RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-$KIBANA_VERSION.tar.gz \
+  && tar zxf kibana-$KIBANA_VERSION.tar.gz \
+  && rm -f kibana-$KIBANA_VERSION.tar.gz \
+  && ln -s kibana-$KIBANA_VERSION kibana
 
 # Copy in kibana.yml file for verion 4.x
 ##COPY config/kibana.yml /opt/kibana/conf/kibana.yml
-# Setup 
+# Setup for Kibana 3.x using config.
 RUN sed -i -e 's/elasticsearch: */elasticsearch: "http://localhost:80"/' /var/www/kibana/config.js
 
 # Setup Kibana dashboards
 ##COPY dashboards/ /opt/kibana/app/dashboards/
-RUN ["mv", "/var/www/kibana/app/dashboards/default.json", "/var/www/kibana/app/dashboards/default-bkup.json"]
-RUN ["cp", "/var/www/kibana/app/dashboards/logstash.json", "/var/www/kibana/app/dashboards/default.json"]
+RUN mv /var/www/kibana/app/dashboards/default.json /var/www/kibana/app/dashboards/default-bkup.json \
+    && cp/var/www/kibana/app/dashboards/logstash.json /var/www/kibana/app/dashboards/default.json
 
-USER nobody
-WORKDIR /tmp
-CMD ["/usr/bin/twistd", "-n", "web", "--path", "/var/www/kibana"]
+# nginx installation - used for proxy/authention for Kibana
+RUN wget http://nginx.org/keys/nginx_signing.key \
+    && apt-key -y COPY nginx_signing.key \
+    && cat "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list \
+RUN apt-get -y update && apt-get -y install \
+    apache2-utils \
+    nginx 
 
-# HTTP interface
-EXPOSE 8080
+# Expose persistent nginx configuration storage area
+##VOLUME ["/etc/nginx/nginx.d"]
+
+COPY conf/nginx-kibana.conf /etc/nginx/nginx.d/nginx-kibana.conf
+COPY conf/kibana.localhost.htpasswd /etc/nginx/conf.d/kibana.localhost.htpasswd
+
+# Listen for connections on HTTP port/interface: 80
+EXPOSE 80
