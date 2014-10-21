@@ -12,8 +12,8 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Install Kibana
 ##ENV KIBANA_VERSION 4.0.0-beta1.1
-##ENV KIBANA_VERSION 3.1.1
-ENV KIBANA_VERSION latest
+ENV KIBANA_VERSION 3.1.1
+##ENV KIBANA_VERSION latest
 RUN mkdir -p /var/www
 WORKDIR /var/www
 RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-$KIBANA_VERSION.tar.gz \
@@ -42,6 +42,7 @@ RUN apt-get -y update && apt-get -y install \
 # Expose persistent nginx configuration storage area
 ##VOLUME ["/etc/nginx/nginx.d"]
 
+# Copy config and user password file into image
 COPY conf/nginx-kibana.conf /etc/nginx/nginx.d/nginx-kibana.conf
 COPY conf/kibana.localhost.htpasswd /etc/nginx/conf.d/kibana.localhost.htpasswd
 
