@@ -27,25 +27,24 @@ RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSIO
 RUN sed -i -e 's/elasticsearch: */elasticsearch: "http://localhost:80"/' /var/www/kibana/config.js
 
 # Setup Kibana dashboards
-##COPY dashboards/ /opt/kibana/app/dashboards/
+COPY dashboards/ /opt/kibana/app/dashboards/
 RUN mv /var/www/kibana/app/dashboards/default.json /var/www/kibana/app/dashboards/default-bkup.json \
-    && cp/var/www/kibana/app/dashboards/logstash.json /var/www/kibana/app/dashboards/default.json
+    && cp /var/www/kibana/app/dashboards/logstash.json /var/www/kibana/app/dashboards/default.json
 
 # Setup nginx for proxy/authention for Kibana
-ENV NGINX_VERSION 1.7.6
+##ENV NGINX_VERSION 1.7.6
 ##ENV NGINX_VERSION latest
-RUN wget http://nginx.org/keys/nginx_signing.key \
-    && apt-key -y COPY nginx_signing.key \
+RUN wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add - \
     && cat "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list \
 RUN apt-get -y update && apt-get -y install \
     apache2-utils \
-    nginx=$NGINX_VERSION
+    nginx
 
 # Expose persistent nginx configuration storage area
-##VOLUME ["/etc/nginx/nginx.d"]
+VOLUME ["/etc/nginx/conf.d"]
 
 # Copy config and user password file into image
-COPY conf/nginx-kibana.conf /etc/nginx/nginx.d/nginx-kibana.conf
+COPY conf/nginx-kibana.conf /etc/nginx/conf.d/nginx-kibana.conf
 COPY conf/kibana.localhost.htpasswd /etc/nginx/conf.d/kibana.localhost.htpasswd
 
 # Listen for connections on HTTP port/interface: 80
