@@ -24,7 +24,7 @@ RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSIO
 # Copy in kibana.yml file for verion 4.x
 ##COPY config/kibana.yml /opt/kibana/conf/kibana.yml
 # Setup for Kibana 3.x using config.js
-RUN sed -i -e 's/elasticsearch: "*/elasticsearch: "http://localhost:80"/' /var/www/kibana/config.js
+RUN sed -i -e 's/"+window.location.hostname+"/localhost:80/' /var/www/kibana/config.js
 
 # Setup Kibana dashboards
 COPY dashboards/ /opt/kibana/app/dashboards/
