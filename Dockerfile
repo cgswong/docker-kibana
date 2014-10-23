@@ -34,8 +34,8 @@ RUN mv /var/www/kibana/app/dashboards/default.json /var/www/kibana/app/dashboard
 # Setup nginx for proxy/authention for Kibana
 ##ENV NGINX_VERSION 1.7.6
 ##ENV NGINX_VERSION latest
-RUN wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add - \
-    && cat "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list
+RUN wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+RUN echo "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list
 RUN apt-get -y update && apt-get -y install \
     apache2-utils \
     nginx
