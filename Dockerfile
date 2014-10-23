@@ -23,12 +23,12 @@ RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSIO
 
 # Copy in kibana.yml file for verion 4.x
 ##COPY config/kibana.yml /opt/kibana/conf/kibana.yml
-# Setup for Kibana 3.x using config.
-RUN sed -i -e 's/elasticsearch: */elasticsearch: "http://localhost:80"/' /var/www/kibana/config.js
+# Setup for Kibana 3.x using config.js
+RUN sed -i -e 's/elasticsearch: "*/elasticsearch: "http://localhost:80"/' /var/www/kibana/config.js
 
 # Setup Kibana dashboards
 COPY dashboards/ /opt/kibana/app/dashboards/
-RUN mv /var/www/kibana/app/dashboards/default.json /var/www/kibana/app/dashboards/default-bkup.json \
+RUN mv /var/www/kibana/app/dashboards/default.json /var/www/kibana/app/dashboards/default-org.json \
     && cp /var/www/kibana/app/dashboards/logstash.json /var/www/kibana/app/dashboards/default.json
 
 # Setup nginx for proxy/authention for Kibana
@@ -49,3 +49,6 @@ COPY conf/kibana.localhost.htpasswd /etc/nginx/conf.d/kibana.localhost.htpasswd
 
 # Listen for connections on HTTP port/interface: 80
 EXPOSE 80
+
+# Define default command.
+CMD ["nginx"]
