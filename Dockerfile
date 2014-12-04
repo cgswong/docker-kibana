@@ -31,7 +31,7 @@ RUN mv ${KIBANA_BASE}/kibana/app/dashboards/default.json ${KIBANA_BASE}/kibana/a
     && cp ${KIBANA_BASE}/kibana/app/dashboards/logstash.json ${KIBANA_BASE}/kibana/app/dashboards/default.json
 
 # Setup nginx for proxy/authention for Kibana
-ENV NGINX_VERSION 1.7.8
+ENV NGINX_VERSION 1.7.8-1~trusty
 ENV NGINX_CFG_DIR /etc/nginx/conf.d
 RUN wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
 RUN echo "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list
