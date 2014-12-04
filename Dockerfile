@@ -7,6 +7,7 @@
 # 2014/10/15 cgwong [v0.1.0]: Initial creation.
 # 2014/11/11 cgwong v0.2.0: Updated sed command.
 #                           Added environment variable for nginx config directory.
+# 2014/12/03 cgwong v0.2.1: Updated Kibana version.
 # ################################################################
 
 FROM dockerfile/ubuntu
@@ -14,7 +15,8 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Install Kibana
 ##ENV KIBANA_VERSION 4.0.0-beta1.1
-ENV KIBANA_VERSION 3.1.1
+##ENV KIBANA_VERSION 3.1.1
+ENV KIBANA_VERSION 3.1.2
 ##ENV KIBANA_VERSION latest
 RUN mkdir -p /var/www
 WORKDIR /var/www
@@ -29,7 +31,7 @@ RUN mv /var/www/kibana/app/dashboards/default.json /var/www/kibana/app/dashboard
     && cp /var/www/kibana/app/dashboards/logstash.json /var/www/kibana/app/dashboards/default.json
 
 # Setup nginx for proxy/authention for Kibana
-##ENV NGINX_VERSION 1.7.6
+##ENV NGINX_VERSION 1.7.8
 ##ENV NGINX_VERSION latest
 ENV NGINX_CFG_DIR /etc/nginx/conf.d
 RUN wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
