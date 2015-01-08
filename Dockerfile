@@ -9,6 +9,7 @@
 #                           Added environment variable for nginx config directory.
 # 2014/12/03 cgwong v0.2.1: Updated Kibana version. Switch to specific nginx version.
 # 2014/12/04 cgwong v0.2.2: Introduce more environment variables. Corrected bug in dashboard copy.
+# 2015/01/08 cgwong v1.0.0: Added another variable.
 # ################################################################
 
 FROM dockerfile/ubuntu
@@ -18,6 +19,7 @@ MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 ##ENV KIBANA_VERSION 4.0.0-BETA2
 ENV KIBANA_VERSION 3.1.2
 ENV KIBANA_BASE /var/www
+ENV KIBANA_HOME ${KIBANA_BASE}/kibana
 RUN mkdir -p ${KIBANA_BASE}
 WORKDIR ${KIBANA_BASE}
 RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz \
@@ -26,9 +28,9 @@ RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSIO
   && ln -s kibana-${KIBANA_VERSION} kibana
 
 # Setup Kibana dashboards
-COPY dashboards/ ${KIBANA_BASE}/kibana/app/dashboards/
-RUN mv ${KIBANA_BASE}/kibana/app/dashboards/default.json ${KIBANA_BASE}/kibana/app/dashboards/default-org.json \
-    && cp ${KIBANA_BASE}/kibana/app/dashboards/logstash.json ${KIBANA_BASE}/kibana/app/dashboards/default.json
+COPY dashboards/ ${KIBANA_HOME}/app/dashboards/
+RUN mv ${KIBANA_HOME}/app/dashboards/default.json ${KIBANA_HOME}/app/dashboards/default-org.json \
+    && cp ${KIBANA_HOME}/app/dashboards/logstash.json ${KIBANA_HOME}/app/dashboards/default.json
 
 # Setup nginx for proxy/authention for Kibana
 ENV NGINX_VERSION 1.7.8-1~trusty
@@ -39,7 +41,7 @@ RUN apt-get -y update && apt-get -y install \
     apache2-utils \
     nginx=${NGINX_VERSION}
 
-# forward request and error logs to docker log collector
+# Forward standard out and error logs to Docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log
 
