@@ -10,6 +10,7 @@
 # 2014/12/03 cgwong v0.2.1: Updated Kibana version. Switch to specific nginx version.
 # 2014/12/04 cgwong v0.2.2: Introduce more environment variables. Corrected bug in dashboard copy.
 # 2015/01/08 cgwong v1.0.0: Added another variable.
+# 2015/01/09 cgwong v1.1.0: Updated to nginx 1.7.9-1.
 # ################################################################
 
 FROM dockerfile/ubuntu
@@ -33,7 +34,7 @@ RUN mv ${KIBANA_HOME}/app/dashboards/default.json ${KIBANA_HOME}/app/dashboards/
     && cp ${KIBANA_HOME}/app/dashboards/logstash.json ${KIBANA_HOME}/app/dashboards/default.json
 
 # Setup nginx for proxy/authention for Kibana
-ENV NGINX_VERSION 1.7.8-1~trusty
+ENV NGINX_VERSION 1.7.9-1~trusty
 ENV NGINX_CFG_DIR /etc/nginx/conf.d
 RUN wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
 RUN echo "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list
