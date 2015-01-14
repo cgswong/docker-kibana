@@ -54,7 +54,7 @@ VOLUME ["${NGINX_CFG_DIR}"]
 COPY conf/nginx-kibana.conf ${NGINX_CFG_DIR}/nginx-kibana.conf
 COPY conf/kibana.localhost.htpasswd ${NGINX_CFG_DIR}/kibana.localhost.htpasswd
 COPY kibana.sh ${KIBANA_EXEC}
-RUN ["chmod", "+x", "${KIBANA_EXEC}"]
+RUN chmod +x ${KIBANA_EXEC}
 
 # Listen for connections on HTTP port/interface: 80
 EXPOSE 80
@@ -62,4 +62,4 @@ EXPOSE 80
 EXPOSE 443
 
 # Define default command.
-ENTRYPOINT ["/usr/local/bin/kibana.sh"]
+ENTRYPOINT ["$KIBANA_EXEC"]
