@@ -11,21 +11,22 @@
 # 2014/12/04 cgwong v0.2.2: Introduce more environment variables. Corrected bug in dashboard copy.
 # 2015/01/08 cgwong v1.0.0: Added another variable.
 # 2015/01/09 cgwong v1.1.0: Updated to nginx 1.7.9-1.
+# 2015/01/14 cgwong v1.2.0: Updated variables.
+#                           Removed Kibana 4 references to other branch.
 # ################################################################
 
 FROM dockerfile/ubuntu
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Install Kibana
-##ENV KIBANA_VERSION 4.0.0-BETA2
 ENV KIBANA_VERSION 3.1.2
 ENV KIBANA_BASE /var/www
 ENV KIBANA_HOME ${KIBANA_BASE}/kibana
+ENV KIBANA_EXEC /usr/local/bin/kibana.sh
+
 RUN mkdir -p ${KIBANA_BASE}
 WORKDIR ${KIBANA_BASE}
-RUN wget https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz \
-  && tar zxf kibana-${KIBANA_VERSION}.tar.gz \
-  && rm -f kibana-${KIBANA_VERSION}.tar.gz \
+RUN curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz | tar zx -C ${KIBANA_BASE} \
   && ln -s kibana-${KIBANA_VERSION} kibana
 
 # Setup Kibana dashboards
@@ -52,13 +53,8 @@ VOLUME ["${NGINX_CFG_DIR}"]
 # Copy config and user password file into image
 COPY conf/nginx-kibana.conf ${NGINX_CFG_DIR}/nginx-kibana.conf
 COPY conf/kibana.localhost.htpasswd ${NGINX_CFG_DIR}/kibana.localhost.htpasswd
-COPY kibana.sh /usr/local/bin/kibana.sh
-
-# Copy in kibana.yml file for verion 4.x
-##COPY config/kibana.yml ${KIBANA_BASE}/kibana/conf/kibana.yml
-# Setup for Kibana 3.x using config.js
-##RUN sed -e 's/"+window.location.hostname+"/localhost/' -i ${KIBANA_BASE}/kibana/config.js \
-##    && cp ${KIBANA_BASE}/kibana/config.js /usr/share/nginx/html/config.js
+COPY kibana.sh ${KIBANA_EXEC}
+RUN ["chmod", "+x", "${KIBANA_EXEC}"]
 
 # Listen for connections on HTTP port/interface: 80
 EXPOSE 80
