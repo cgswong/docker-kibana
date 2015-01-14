@@ -58,7 +58,7 @@ RUN curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VER
 ##COPY conf/nginx-kibana.conf ${NGINX_CFG_DIR}/nginx-kibana.conf
 ##COPY conf/kibana.localhost.htpasswd ${NGINX_CFG_DIR}/kibana.localhost.htpasswd
 COPY kibana.sh ${KIBANA_EXEC}
-RUN ["chmod", "+x", "${KIBANA_EXEC}"]
+RUN chmod +x ${KIBANA_EXEC}
 
 # Copy in kibana.yml file for verion 4.x
 ##COPY config/kibana.yml ${KIBANA_BASE}/kibana/conf/kibana.yml
