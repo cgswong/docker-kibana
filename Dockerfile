@@ -13,6 +13,7 @@
 # 2015/01/09 cgwong v1.1.0: Updated to nginx 1.7.9-1.
 # 2015/01/14 cgwong v1.2.0: Updated variables.
 #                           Removed Kibana 4 references to other branch.
+# 2015/01/28 cgwong v1.3.0: Corrected ENTRYPOINT variable substitution.
 # ################################################################
 
 FROM dockerfile/ubuntu
@@ -62,4 +63,4 @@ EXPOSE 80
 EXPOSE 443
 
 # Define default command.
-ENTRYPOINT ["$KIBANA_EXEC"]
+ENTRYPOINT ["/usr/local/bin/kibana.sh"]
