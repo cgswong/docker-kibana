@@ -37,7 +37,7 @@ VOLUME ["${KIBANA_HOME}/config"]
 COPY src/ /
 RUN groupadd -r ${KIBANA_GROUP} \
   && useradd -M -r -d ${KIBANA_HOME} -g ${KIBANA_GROUP} -c "Kibana Service User" -s /bin/false ${KIBANA_USER} \
-  && chown -R ${KIBANA_USER}:${KIBANA_GROUP} ${ES_HOME}/ ${KIBANA_EXEC} \
+  && chown -R ${KIBANA_USER}:${KIBANA_GROUP} ${KIBANA_HOME}/ ${KIBANA_EXEC} \
   && chmod +x ${KIBANA_EXEC}
 
 # Listen for connections on HTTP port/interface: 80
