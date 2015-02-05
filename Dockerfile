@@ -4,71 +4,44 @@
 #
 # LOG:
 # yyyy/mm/dd [name] [version]: [notes]
-# 2014/10/15 cgwong [v0.1.0]: Initial creation.
-# 2014/11/11 cgwong v0.2.0: Updated sed command.
-#                           Added environment variable for nginx config directory.
-# 2014/12/03 cgwong v0.2.1: Updated Kibana version. Switch to specific nginx version.
-# 2014/12/04 cgwong v0.2.2: Introduce more environment variables. Corrected bug in dashboard copy.
-# 2015/01/08 cgwong v1.0.0: Added another variable.
-# 2015/01/09 cgwong v1.1.0: Updated to nginx 1.7.9-1.
-# 2015/01/12 cgwong v1.2.0: Updated to Kibana 4beta3.
-# 2015/01/14 cgwong v2.0.0: Modified download method.
-#                           Removed Kibana 3 coding.
-#                           Removed nginx for the time being.
-#                           Using base box for oracle-java8.
+# 2015/02/05 cgwong v1.0.0: Use minimal JDK 8 base image. Re-create.
 # ################################################################
 
-##FROM dockerfile/ubuntu
-FROM dockerfile/oracle-java8
+FROM cgswong/java:oracleJDK8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
-# Install Kibana
+# Variables
 ENV KIBANA_VERSION 4.0.0-beta3
-ENV KIBANA_BASE /var/www
+ENV KIBANA_BASE /opt
 ENV KIBANA_HOME ${KIBANA_BASE}/kibana
 ENV KIBANA_EXEC /usr/local/bin/kibana.sh
+ENV KIBANA_USER kibana
+ENV KIBANA_GROUP kibana
 
-RUN mkdir -p ${KIBANA_BASE}
+# Install Kibana
 WORKDIR ${KIBANA_BASE}
-RUN curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz | tar zx -C ${KIBANA_BASE} \
-  && ln -s kibana-${KIBANA_VERSION} kibana
+RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install \
+  curl \
+#  supervisor \
+  && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz | tar zxf - \
+  && ln -s kibana-${KIBANA_VERSION} kibana \
+  && curl -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
+  && chmod +x /usr/local/bin/confd
 
-# Setup Kibana dashboards
-##COPY dashboards/ ${KIBANA_HOME}/app/dashboards/
-##RUN mv ${KIBANA_HOME}/app/dashboards/default.json ${KIBANA_HOME}/app/dashboards/default-org.json \
-##    && cp ${KIBANA_HOME}/app/dashboards/logstash.json ${KIBANA_HOME}/app/dashboards/default.json
+# Expose volumes
+VOLUME ["${KIBANA_HOME}/config"]
 
-# Setup nginx for proxy/authention for Kibana
-##ENV NGINX_VERSION 1.7.9-1~trusty
-##ENV NGINX_CFG_DIR /etc/nginx/conf.d
-##RUN wget -qO - http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
-##RUN echo "deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx" >> /etc/apt/sources.list
-##RUN apt-get -y update && apt-get -y install \
-##    apache2-utils \
-##    nginx=${NGINX_VERSION}
+# Copy in files and process user/group permissions
+COPY src/ /
+RUN groupadd -r ${KIBANA_GROUP} \
+  && useradd -M -r -d ${KIBANA_HOME} -g ${KIBANA_GROUP} -c "Kibana Service User" -s /bin/false ${KIBANA_USER} \
+  && chown -R ${KIBANA_USER}:${KIBANA_GROUP} ${ES_HOME}/ ${KIBANA_EXEC} \
+  && chmod +x ${KIBANA_EXEC}
 
-# Forward standard out and error logs to Docker log collector
-##RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-##  && ln -sf /dev/stderr /var/log/nginx/error.log
-
-# Expose persistent nginx configuration storage area
-##VOLUME ["${NGINX_CFG_DIR}"]
-
-# Copy config and user password file into image
-##COPY conf/nginx-kibana.conf ${NGINX_CFG_DIR}/nginx-kibana.conf
-##COPY conf/kibana.localhost.htpasswd ${NGINX_CFG_DIR}/kibana.localhost.htpasswd
-COPY kibana.sh ${KIBANA_EXEC}
-RUN chmod +x ${KIBANA_EXEC}
-
-# Copy in kibana.yml file for verion 4.x
-##COPY config/kibana.yml ${KIBANA_BASE}/kibana/conf/kibana.yml
-
-# Listen for connections on default HTTP port/interface: 5601
-EXPOSE 5601
 # Listen for connections on HTTP port/interface: 80
-##EXPOSE 80
-# Listen for SSL connections on HTTPS port/interface: 443
-##EXPOSE 443
+EXPOSE 5601
 
 # Define default command.
-ENTRYPOINT ["${KIBANA_EXEC}"]
+CMD ["/usr/local/bin/kibana.sh"]

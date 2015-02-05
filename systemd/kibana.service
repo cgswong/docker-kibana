@@ -1,0 +1,30 @@
+[Unit]
+Description=Kibana
+
+# Requirements
+Requires=docker.service
+Requires=fleet.service
+Wants=elasticsearch.service
+
+# Dependency ordering and binding
+After=docker.service
+After=fleet.service
+After=elasticsearch.service
+
+[Service]
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+
+ExecStartPre=/usr/bin/docker pull cgswong/kibana
+ExecStart=/usr/bin/docker run --rm --name %p -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} cgswong/kibana
+#ExecStart=/usr/bin/docker run --rm --name %p -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e KV_TYPE=consul cgswong/kibana
+ExecStartPost=/usr/bin/etcdctl set /kibana/host ${COREOS_PUBLIC_IPV4}
+#ExecStartPost=/usr/bin/curl -X PUT -d ${COREOS_PUBLIC_IPV4} http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/kibana/host
+ExecStop=/usr/bin/docker stop %p
+ExecStop=/usr/bin/docker kill %p
+ExecStop=/usr/bin/docker rm %p
+ExecStopPost=/usr/bin/etcdctl rm /kibana/host --with-value ${COREOS_PUBLIC_IPV4}
+#ExecStopPost=/usr/bin/curl -X DELETE http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/kibana/host/${COREOS_PUBLIC_IPV4}
+
+[X-Fleet]
+Conflicts=%p.service
