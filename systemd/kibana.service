@@ -12,6 +12,8 @@ After=fleet.service
 After=elasticsearch.service
 
 [Service]
+TimeoutStartSec=0
+
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
 

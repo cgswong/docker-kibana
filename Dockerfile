@@ -27,7 +27,7 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install \
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz | tar zxf - \
   && ln -s kibana-${KIBANA_VERSION} kibana \
-  && curl -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
+  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
   && chmod +x /usr/local/bin/confd
 
 # Expose volumes
