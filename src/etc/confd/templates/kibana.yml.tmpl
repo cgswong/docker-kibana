@@ -5,7 +5,7 @@ port: 5601
 host: "0.0.0.0"
 
 # The Elasticsearch instance to use for all your queries.
-elasticsearch: "http://{{ range getvs "/es/host/*" }} {{.}}{{ end }}"
+elasticsearch: "http://{{ range getvs "/es/host/*" }}{{.}}{{ end }}"
 
 # Kibana uses an index in Elasticsearch to store saved searches, visualizations
 # and dashboards. It will create a new index if it doesn't already exist.

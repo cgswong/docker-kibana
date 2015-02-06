@@ -31,9 +31,6 @@ until confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/con
   sleep 5
 done
 
-# Temporary debug:
-grep --color=auto elasticsearch /opt/kibana/config/kibana.yml
-
 # if `docker run` first argument start with `--` the user is passing launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
   exec /opt/kibana/bin/kibana "$@"
