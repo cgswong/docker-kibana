@@ -25,7 +25,7 @@ ExecStartPost=/usr/bin/etcdctl set /kibana/host/%H ${COREOS_PUBLIC_IPV4}
 ExecStop=/usr/bin/docker stop %p
 ExecStop=/usr/bin/docker kill %p
 ExecStop=/usr/bin/docker rm %p
-ExecStopPost=/usr/bin/etcdctl rmdir /kibana/host%H
+ExecStopPost=/usr/bin/etcdctl rmdir /kibana/host/%H
 #ExecStopPost=/usr/bin/curl -L http://${COREOS_PUBLIC_IPV4}:8500/v1/kv/kibana/host/%H -XDELETE
 
 [X-Fleet]
