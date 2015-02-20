@@ -2,45 +2,45 @@
 
 This repository contains a **Dockerfile** of [Kibana](http://www.elasticsearch.org/) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
-It is usually the front-end for a Logstash and Elasticsearch stack but of course can be used for other purposes.
+It is usually the front-end for Elasticsearch but can be used for other purposes.
 
 
 ### Base Docker Image
 
-* [cgswong/java:oraclejdk8](https://registry.hub.docker.com/u/cgswong/java/)
+* [cgswong/java:orajdk8](https://registry.hub.docker.com/u/cgswong/java/)
 
 
 ### Installation
 
 1. Install [Docker](https://www.docker.com/).
 
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/kibana`
+2. Download [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/kibana:v4.0.0`
 
   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/kibana" github.com/cgswong/docker-kibana`)
 
 
 ### Usage
-We use Kibana 4 which is still in beta right now so it's quite simple with no nginx for proxying at this time. This container requires a dependent Elasticsearch container (alias **es**) that registers itself within either an etcd or consul KV store, using the expected keys of:
+We use a basic Kibana 4 setup without any proxying. This container requires a dependent Elasticsearch container that registers itself within either an etcd or consul KV store, using the expected key of:
 
-- `/es/host`: IPV4 address of Elasticsearch host (may have port as well in format [host]:[port])
+- `/services/logging/es/host`: IPV4 address of Elasticsearch host
 
-We will wait until the key is present, then use **confd** to update the Kibana configuration file `kibana.yml`, setting those values within the file, then starting Kibana.
+We will wait until a subkey is present, then use **confd** to update the Kibana configuration file `$KIBANA_HOME/config/kibana.yml`, setting the value for `elasticsearch_url` with the key, then starting Kibana.
 
-The quick and easy way to get started with the default etcd KV store is:
-
-```sh
-source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} cgswong/kibana
-```
-
-If using consul as the backend KV store:
+To use the default etcd KV backend:
 
 ```sh
 source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e KV_TYPE=consul cgswong/kibana
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} cgswong/kibana:v4.0.0
 ```
 
-After few seconds the container should start and you can open `http://<container_host>:80` to see the result.
+To use consul as the KV backend:
+
+```sh
+source /etc/environment
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e KV_TYPE=consul cgswong/kibana:v4.0.0
+```
+
+After few seconds the container should start and you can open `http://<container_host>:5601` to see the result.
 
 ### Changing Defaults
 A few environment variables can be passed via the Docker `-e` flag to do some further configuration:

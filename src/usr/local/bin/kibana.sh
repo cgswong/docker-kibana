@@ -6,6 +6,7 @@
 # LOG:
 # yyyy/mm/dd [user] [version]: [notes]
 # 2015/02/05 cgwong v1.0.0: re- creation
+# 2015/02/05 cgwong v1.0.1: Modify toml file name.
 # #################################################################
 
 # Fail hard and fast
@@ -26,7 +27,7 @@ KV_URL=${KV_HOST}:${KV_PORT}
 echo "[kibana] booting container. KV store: $KV_TYPE"
 
 # Loop until confd has updated the config
-until confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/kibana.yml.toml; do
+until confd -onetime -backend $KV_TYPE -node $KV_URL -config-file /etc/confd/conf.d/kibana.toml; do
   echo "[kibana] waiting for confd to refresh config (waiting for ElasticSearch to be available)"
   sleep 5
 done

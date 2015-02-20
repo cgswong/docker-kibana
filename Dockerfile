@@ -5,18 +5,20 @@
 # LOG:
 # yyyy/mm/dd [name] [version]: [notes]
 # 2015/02/05 cgwong v1.0.0: Use minimal JDK 8 base image. Re-create.
+# 2015/02/05 cgwong v1.0.1: Kibana 4, use variable for confd.
 # ################################################################
 
 FROM cgswong/java:oracleJDK8
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
-ENV KIBANA_VERSION 4.0.0-beta3
+ENV KIBANA_VERSION 4.0.0
 ENV KIBANA_BASE /opt
 ENV KIBANA_HOME ${KIBANA_BASE}/kibana
 ENV KIBANA_EXEC /usr/local/bin/kibana.sh
 ENV KIBANA_USER kibana
 ENV KIBANA_GROUP kibana
+ENV CONFD_VERSION 0.6.3
 
 # Install Kibana
 WORKDIR ${KIBANA_BASE}
@@ -25,9 +27,9 @@ RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install \
 #  supervisor \
   && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/* \
-  && curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}.tar.gz | tar zxf - \
+  && curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz | tar zxf - \
   && ln -s kibana-${KIBANA_VERSION} kibana \
-  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v0.6.3/confd-0.6.3-linux-amd64 \
+  && curl -sL -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 \
   && chmod +x /usr/local/bin/confd
 
 # Expose volumes
