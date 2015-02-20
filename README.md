@@ -1,40 +1,51 @@
 ## Kibana Dockerfile
 
-This repository contains **Dockerfile** of [Kibana](http://www.elasticsearch.org/) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
-It is usually the front-end for a Logstash and Elasticsearch stack but of course can be used for other purposes.
+This repository contains a **Dockerfile** of [Kibana](http://www.elasticsearch.org/) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
+
+It is usually the front-end for Elasticsearch but can be used for other purposes.
 
 
 ### Base Docker Image
 
-* [dockerfile/ubuntu](http://dockerfile.github.io/#/ubuntu)
+* [cgswong/java:orajdk8](https://registry.hub.docker.com/u/cgswong/java/)
 
 
 ### Installation
 
 1. Install [Docker](https://www.docker.com/).
 
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/kibana`
+2. Download [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/kibana:v4.0.0`
 
-   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/kibana" github.com/cgswong/docker-kibana`)
+  (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/kibana" github.com/cgswong/docker-kibana`)
 
 
 ### Usage
-The expectation is that this Kibana/nginx container will be linked with another container, namely Elasticsearch (with alias `es`). You can use a different configuration file via the `-v` flag when doing `docker run` to mount your own. To change the protocol from HTTP to HTTPS when connecting to the Elasticsearch container you can override the environment variable `ES_PORT_9200_TCP_PROTO` via the `-e` flag when doing `docker run`. To run the container:
+We use a basic Kibana 4 setup without any proxying. This container requires a dependent Elasticsearch container that registers itself within either an etcd or consul KV store, using the expected key of:
+
+- `/services/logging/es/host`: IPV4 address of Elasticsearch host
+
+We will wait until a subkey is present, then use **confd** to update the Kibana configuration file `$KIBANA_HOME/config/kibana.yml`, setting the value for `elasticsearch_url` with the key, then starting Kibana.
+
+To use the default etcd KV backend:
 
 ```sh
-docker run -d --link elasticsearch:es -p 80:80 --name kibana cgswong/kibana
+source /etc/environment
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} cgswong/kibana:v4.0.0
 ```
 
-#### Attach persistent/shared directories
+To use consul as the KV backend:
 
-  1. Create a mountable data directory `<data-dir>` on the host.
+```sh
+source /etc/environment
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e KV_TYPE=consul cgswong/kibana:v4.0.0
+```
 
-  2. Create nginx config for Kibana at `<data-dir>/nginx-kibana.conf`.
+After few seconds the container should start and you can open `http://<container_host>:5601` to see the result.
 
-  3. Start a container by mounting data directory and specifying the custom configuration file:
+### Changing Defaults
+A few environment variables can be passed via the Docker `-e` flag to do some further configuration:
 
-    ```sh
-    docker run -d --link elasticsearch:es -p 80:80 -v <data-dir>:/etc/nginx/conf.d --name kibana cgswong/kibana
-    ```
+  - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
+  - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
 
-After few seconds, open `http://<host>:80` to see the result.
+**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**
