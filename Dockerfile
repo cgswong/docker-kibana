@@ -8,7 +8,7 @@
 # 2015/02/05 cgwong v1.0.1: Kibana 4, use variable for confd.
 # ################################################################
 
-FROM cgswong/java:oracleJDK8
+FROM cgswong/min-jessie
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
