@@ -8,7 +8,7 @@
 # 2015/02/05 cgwong v1.0.1: Kibana 4, use variable for confd.
 # ################################################################
 
-FROM cgswong/java:oracleJDK8
+FROM cgswong/min-jessie
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
@@ -42,7 +42,7 @@ RUN groupadd -r ${KIBANA_GROUP} \
   && chown -R ${KIBANA_USER}:${KIBANA_GROUP} ${KIBANA_HOME}/ ${KIBANA_EXEC} \
   && chmod +x ${KIBANA_EXEC}
 
-# Listen for connections on HTTP port/interface: 80
+# Listen for connections on HTTP port/interface: 5601
 EXPOSE 5601
 
 # Define default command.
