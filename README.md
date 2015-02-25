@@ -30,14 +30,14 @@ To use the default etcd KV backend:
 
 ```sh
 source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} cgswong/kibana:v4.0.0
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} cgswong/kibana:v4.0.0
 ```
 
 To use consul as the KV backend:
 
 ```sh
 source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PUBLIC_IPV4} -e KV_TYPE=consul cgswong/kibana:v4.0.0
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/kibana:v4.0.0
 ```
 
 After few seconds the container should start and you can open `http://<container_host>:5601` to see the result.
@@ -48,4 +48,4 @@ A few environment variables can be passed via the Docker `-e` flag to do some fu
   - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
   - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
 
-**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the `source /etc/environment` and `${COREOS_PUBLIC_IPV4}` statements with the appropriate OS specific equivalents.**
+**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the CoreOS specific statements with the appropriate OS specific equivalents.**
