@@ -14,7 +14,7 @@ set -eo pipefail
 
 # Set environment
 KV_TYPE=${KV_TYPE:-etcd}
-KV_HOST=${KV_HOST:-172.17.8.101}
+KV_HOST=${KV_HOST:-127.0.0.1}
 if [ "$KV_TYPE" = "etcd" ]; then
   # Set as default for etcd unless otherwise stated
   KV_PORT=${KV_PORT:-4001}
