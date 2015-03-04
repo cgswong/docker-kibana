@@ -6,19 +6,20 @@
 # yyyy/mm/dd [name] [version]: [notes]
 # 2015/02/05 cgwong v1.0.0: Use minimal JDK 8 base image. Re-create.
 # 2015/02/05 cgwong v1.0.1: Kibana 4, use variable for confd.
+# 2015/03/04 cgwong v1.1.0: Kibana 4.0.1, confd 0.7.1
 # ################################################################
 
 FROM cgswong/min-jessie
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
-ENV KIBANA_VERSION 4.0.0
+ENV KIBANA_VERSION 4.0.1
 ENV KIBANA_BASE /opt
 ENV KIBANA_HOME ${KIBANA_BASE}/kibana
 ENV KIBANA_EXEC /usr/local/bin/kibana.sh
 ENV KIBANA_USER kibana
 ENV KIBANA_GROUP kibana
-ENV CONFD_VERSION 0.6.3
+ENV CONFD_VERSION 0.7.1
 
 # Install Kibana
 WORKDIR ${KIBANA_BASE}
