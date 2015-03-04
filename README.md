@@ -14,7 +14,7 @@ It is usually the front-end for Elasticsearch but can be used for other purposes
 
 1. Install [Docker](https://www.docker.com/).
 
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/kibana:v4.0.0`
+2. Download [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/kibana:v4.0.1`
 
   (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/kibana" github.com/cgswong/docker-kibana`)
 
@@ -30,14 +30,14 @@ To use the default etcd KV backend:
 
 ```sh
 source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} cgswong/kibana:v4.0.0
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} cgswong/kibana:v4.0.1
 ```
 
 To use consul as the KV backend:
 
 ```sh
 source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/kibana:v4.0.0
+docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/kibana:v4.0.1
 ```
 
 After few seconds the container should start and you can open `http://<container_host>:5601` to see the result.
