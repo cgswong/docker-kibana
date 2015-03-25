@@ -8,7 +8,7 @@ dest = "/opt/kibana/config/kibana.yml"
 
 # The consul keys or directory to watch.  This is where the information to fill in the template will come from.
 keys = [
-    "/services/logging/es/host",
+    "/services/logging/es/es01/proxy",
 ]
 
 # File ownership and mode information
@@ -18,4 +18,4 @@ mode = "0644"
 # These are the commands that will be used to check whether the rendered config is
 # valid and to reload the actual service once the new config is in place
 ##check_cmd = "/usr/bin/supervisorctl kibana check"
-##reload_cmd = "/usr/bin/supervisorctl kibana restart"
+reload_cmd = "/usr/bin/supervisorctl kibana restart"

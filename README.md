@@ -1,51 +1,50 @@
-## Kibana Dockerfile
+## Docker Kibana
 
-This repository contains a **Dockerfile** of [Kibana](http://www.elasticsearch.org/) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
+This is a configurable [Kibana](https://www.elastic.co/products/kibana) [Docker](https://www.docker.com/) built using [Docker's automated build process](https://registry.hub.docker.com/u/cgswong/kibana/) and published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
-It is usually the front-end for Elasticsearch but can be used for other purposes.
-
-
-### Base Docker Image
-
-* [cgswong/java:orajdk8](https://registry.hub.docker.com/u/cgswong/java/)
+It is usually the front-end visualization component for an **ELK stack**. That is, [Elasticsearch](https://www.elastic.co/products/elasticsearch), [Logstash](https://www.elastic.co/products/logstash) and [Kibana](https://www.elastic.co/products/kibana) .
 
 
-### Installation
-
-1. Install [Docker](https://www.docker.com/).
-
-2. Download [automated build](https://registry.hub.docker.com/u/cgswong/kibana/) from public [Docker Hub Registry](https://registry.hub.docker.com/): `docker pull cgswong/kibana`
-
-  (alternatively, you can build an image from Dockerfile: `docker build -t="cgswong/kibana" github.com/cgswong/docker-kibana`)
-
-
-### Usage
-We use a basic Kibana 4 setup without any proxying. This container requires a dependent Elasticsearch container that registers itself within either an etcd or consul KV store, using the expected key of:
-
-- `/services/logging/es/host`: IPV4 address of Elasticsearch host
-
-We will wait until a subkey is present, then use **confd** to update the Kibana configuration file `$KIBANA_HOME/config/kibana.yml`, setting the value for `elasticsearch_url` with the key, then starting Kibana.
-
-To use the default etcd KV backend:
+### How to use this image
+To start a basic container, specify a URL (hostname/IP and port) for a target Elasticsearch node to connect using `-e ES_URL=<hostname/ipv4>:<port>` or `--env ES_URL=<hostname/ipv4>:<port>`. If following best practices you should be using a proxy node but you can connect via any proxy or data node.
 
 ```sh
-source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} cgswong/kibana
+docker run --name %p \
+  --publish 5601:5601 \
+  --env ES_URL=elasticsearch.example.com:9200
+  cgswong/kibana
 ```
 
-To use consul as the KV backend:
+For more advanced usage involving **Service Discovery** (**etcd** and **consul** are supported) you will need to use environment variables:
 
+- ES_CLUSTER: Name of Elasticsearch cluster
+- KV_TYPE: Type of KV store backend. Currently only `etcd` (default) and `consul` are supported.
+- KV_HOST: hostname/ipv4 address of service discovery backend.
+- KV_PORT: Port number of KV store. Defaults to 4001 for etcd and 8500 for consul.
+
+This usage is mutually exclusive with the ES_URL variable, which takes precedence.
+
+#### Etcd backend
 ```sh
-source /etc/environment
-docker run --rm --name kibana -p 5601:5601 -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/kibana
+docker run --name %p \
+  --publish 5601:5601 \
+  --env ES_CLUSTER=es_cluster1 \
+  --env KV_HOST=172.17.8.101 \
+  cgswong/kibana
 ```
 
-After few seconds the container should start and you can open `http://<container_host>:5601` to see the result.
+#### Consul backend
+```sh
+docker run --name %p \
+  --publish 5601:5601 \
+  --env ES_CLUSTER=es_cluster1 \
+  --env KV_HOST=172.17.8.101 \
+  --env KV_TYPE=consul \
+  cgswong/kibana
+```
 
-### Changing Defaults
-A few environment variables can be passed via the Docker `-e` flag to do some further configuration:
+In the service discovery use case, we are watching the key below `/services/logging/es/<es_cluster>/proxy` to detect the hostname/ipv4 and port to use when connecting to the specified ES cluster. Any changes in the key or value will trigger a restart of Kibana with the updated key or value.
 
-  - KV_TYPE: Sets the type of KV store to use as the backend. Options are etcd (default) and consul.
-  - KV_PORT: Sets the port used in connecting to the KV store which defaults to 4001 for etcd and 8500 for consul.
+> Note that port 5601 has been exposed for client connectivity. Also, there is currently no security used, but this will be included in a future release involving proxy authentication (using nginx).
 
-**Note: The startup procedures previously shown assume you are using CoreOS (with either etcd or consul as your KV store). If you are not using CoreOS then simply substitute the CoreOS specific statements with the appropriate OS specific equivalents.**
+Sample systemd unit files are provided for incorporating this image in a full working model.

@@ -7,9 +7,10 @@
 # 2015/02/05 cgwong v1.0.0: Use minimal JDK 8 base image. Re-create.
 # 2015/02/05 cgwong v1.0.1: Kibana 4, use variable for confd.
 # 2015/03/04 cgwong v1.1.0: Kibana 4.0.1, confd 0.7.1
+# 2015/03/28 cgwong v1.1.1: Include supervisord.
 # ################################################################
 
-FROM cgswong/min-jessie
+FROM cgswong/min-jessie:latest
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
@@ -25,7 +26,7 @@ ENV CONFD_VERSION 0.7.1
 WORKDIR ${KIBANA_BASE}
 RUN apt-get -yq update && DEBIAN_FRONTEND=noninteractive apt-get -yq install \
   curl \
-#  supervisor \
+  supervisor \
   && apt-get -y clean && apt-get -y autoclean && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && curl -s https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz | tar zxf - \
@@ -43,7 +44,7 @@ RUN groupadd -r ${KIBANA_GROUP} \
   && chown -R ${KIBANA_USER}:${KIBANA_GROUP} ${KIBANA_HOME}/ ${KIBANA_EXEC} \
   && chmod +x ${KIBANA_EXEC}
 
-# Listen for connections on HTTP port/interface: 80
+# Listen for connections on HTTP port/interface: 5601
 EXPOSE 5601
 
 # Define default command.
