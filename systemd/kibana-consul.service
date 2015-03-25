@@ -4,30 +4,43 @@ Description=Kibana
 # Requirements
 Requires=docker.service
 Requires=fleet.service
+Requires=consul.service
 
 # Dependency ordering and binding
 After=docker.service
 After=fleet.service
+After=consul.service
 
 [Service]
-TimeoutStartSec=0
+TimeoutStartSec=10m
+Restart=on-failure
+RestartSec=5s
 
 # Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
+Environment="ES_CLUSTER=es01"
 
 ExecStartPre=-/usr/bin/docker stop %p
 ExecStartPre=-/usr/bin/docker kill %p
 ExecStartPre=/usr/bin/docker pull cgswong/kibana
 
-ExecStart=/usr/bin/docker run --rm --name %p -P -e KV_HOST=${COREOS_PRIVATE_IPV4} -e KV_TYPE=consul cgswong/kibana
+ExecStart=/usr/bin/docker run --name %p \
+  --publish 5601:5601 \
+  --env ES_CLUSTER=$ES_CLUSTER \
+  --env KV_HOST=${COREOS_PRIVATE_IPV4} \
+  --env KV_TYPE=consul \
+  cgswong/kibana
 
-ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/kibana/host/${COREOS_PRIVATE_IPV4} -XPUT -d value="%H"
+ExecStartPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/kibana/host/${COREOS_PRIVATE_IPV4} -XPUT -d "%H"
 
 ExecStop=-/usr/bin/docker stop %p
 ExecStop=-/usr/bin/docker kill %p
 ExecStop=-/usr/bin/docker rm %p
 
 ExecStopPost=/usr/bin/curl -L http://${COREOS_PRIVATE_IPV4}:8500/v1/kv/services/logging/kibana/host/${COREOS_PRIVATE_IPV4} -XDELETE
+
+[Install]
+WantedBy=multi-user.target
 
 [X-Fleet]
 Conflicts=%p.service
