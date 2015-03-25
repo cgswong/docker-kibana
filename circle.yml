@@ -2,6 +2,11 @@ machine:
   services:
     - docker
 
+general:
+  branches:
+    ignore:
+      - master
+
 dependencies:
   cache_directories:
     - "~/docker"
