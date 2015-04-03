@@ -13,12 +13,12 @@ dependencies:
   override:
     - docker info
     - if [ -e ~/docker/image.tar ]; then docker load --input ~/docker/image.tar; fi
-    - docker build -t cgswong/kibana:latest .
-    - mkdir -p ~/docker; docker save cgswong/kibana:latest > ~/docker/image.tar
+    - docker build -t cgswong/kibana .
+    - mkdir -p ~/docker; docker save cgswong/kibana > ~/docker/image.tar
 
 test:
   override:
-    - docker run -d --publish 5601:5601 --env ES_URL=localhost:9200 cgswong/kibana:latest; sleep 10
+    - docker run -d --publish 5601:5601 --env ES_URL=localhost:9200 cgswong/kibana; sleep 10
 #    - curl --retry 10 --retry-delay 5 -Lv http://localhost:5601
 
 deployment:

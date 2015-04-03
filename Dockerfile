@@ -8,13 +8,14 @@
 # 2015/02/05 cgwong v1.0.1: Kibana 4, use variable for confd.
 # 2015/03/04 cgwong v1.1.0: Kibana 4.0.1, confd 0.7.1
 # 2015/03/28 cgwong v1.1.1: Include supervisord.
+# 2015/04/03 cgwong v1.2.0: Kibana 4.0.2
 # ################################################################
 
 FROM cgswong/min-jessie:latest
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
-ENV KIBANA_VERSION 4.0.1
+ENV KIBANA_VERSION 4.0.2
 ENV KIBANA_BASE /opt
 ENV KIBANA_HOME ${KIBANA_BASE}/kibana
 ENV KIBANA_EXEC /usr/local/bin/kibana.sh
