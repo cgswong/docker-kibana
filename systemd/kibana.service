@@ -3,7 +3,7 @@ Description=Kibana
 
 # Requirements
 Requires=docker.service
-Requires=etd.service
+Requires=etcd.service
 #Requires=fleet.service
 
 # Dependency ordering and binding
