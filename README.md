@@ -1,5 +1,7 @@
 ## Docker Kibana
 
+[![Circle CI](https://circleci.com/gh/cgswong/docker-kibana/tree/master.svg?style=svg)](https://circleci.com/gh/cgswong/docker-kibana/tree/master)
+
 This is a configurable [Kibana](https://www.elastic.co/products/kibana) [Docker](https://www.docker.com/) built using [Docker's automated build process](https://registry.hub.docker.com/u/cgswong/kibana/) and published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
 It is usually the front-end visualization component for an **ELK stack**. That is, [Elasticsearch](https://www.elastic.co/products/elasticsearch), [Logstash](https://www.elastic.co/products/logstash) and [Kibana](https://www.elastic.co/products/kibana) .
