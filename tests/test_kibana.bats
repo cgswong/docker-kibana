@@ -11,17 +11,12 @@ teardown () {
   docker rm ${IMAGE} >/dev/null
 }
 
-@test "Confirm installed ES version" {
-  run docker run --name ${IMAGE} ${IMAGE}:${TAG} /opt/elasticsearch/bin/elasticsearch -v
+@test "Confirm installed Kibana version" {
+  run docker run --name ${IMAGE} ${IMAGE}:${TAG} /opt/kibana/bin/kibana -v
   [[ $output =~ "Version: ${TAG}" ]]
 }
 
-@test "Confirm JDK version 1.8.0_45-b14" {
-  run docker run --name ${IMAGE} ${IMAGE}:${TAG} /usr/local/java/jdk/bin/java -version
-  [[ ${lines[1]} =~ "1.8.0_45-b14" ]]
-}
-
-@test "Confirm ES is available" {
+@test "Confirm Kibana is available" {
   run docker run -d --name ${IMAGE} -P ${IMAGE}:${TAG}
   port=$(docker port ${IMAGE} | grep 9200 | cut -d":" -f2)
   sleep 10
