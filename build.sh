@@ -10,7 +10,7 @@ pkg_path=$(cd $(dirname $0); pwd -P)
 host=$(hostname)
 logfile="$pkg_path/$pkg.log"
 
-IMAGE="elasticsearch"
+IMAGE="kibana"
 MACHINE="dev"
 
 versions=( 4.*/ )
