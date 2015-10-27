@@ -77,7 +77,7 @@ for arg in "$@"; do
 
   case $arg in
     -h | --help)
-      usage && return 0
+      usage && exit 0
       ;;
     -nc | --no-create)
       create_machine=0
@@ -92,12 +92,12 @@ for arg in "$@"; do
       DOCKER_MACHINE_HDD="$optarg"
       ;;
     -*)
-      echo "${red}[CI] Unknown option $arg, exiting...${reset}" && return 1
+      echo "${red}[CI] Unknown option $arg, exiting...${reset}" && exit 1
       ;;
     *)
       echo "${red}[CI] Unknown option or missing argument for $arg, exiting.${reset}"
       usage
-      return 1
+      exit 1
       ;;
   esac
 done
