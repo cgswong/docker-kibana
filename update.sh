@@ -1,39 +1,41 @@
-#!/usr/local/bin/bash
-# ###################################################
-# DESC.: Update Dockerfile for each version directory.
-#        Show some information on each version.
-# ###################################################
-#set -e
+#! /usr/bin/env bash
+# Add files for each version.
 
-declare -A aliases
-aliases=(
-  [4.1.1]='latest'
-)
+set -e
+
+# Set values
+pkg=${0##*/}
+
+# set colors
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+purple=$(tput setaf 5)
+cyan=$(tput setaf 6)
+white=$(tput setaf 7)
+reset=$(tput sgr0)
 
 # Script directory
 cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
 
-versions=( 4.*/ )
+VERSIONS=${VERSIONS:-"$@"}
+if [ ! -z "$VERSIONS" ]; then
+  versions=( "$VERSIONS" )
+else
+  versions=( ?.?.? )
+fi
 versions=( "${versions[@]%/}" )
-downloadable=$(curl --insecure --location --silent --show-error 'https://www.elastic.co/downloads/past-releases'   | sed -rn 's!.*?/downloads/past-releases/(kibana-)?[0-9]+-[0-9]+-[0-9]+">Kibana ([0-9]+\.[0-9]+\.[0-9]+)<.*!\2!gp')
-url='git://github.com/cgswong/docker-kibana'
+versions=( $(printf '%s\n' "${versions[@]}"|sort -V) )
 
 for version in "${versions[@]}"; do
-  recent=$(echo "$downloadable" | grep -m 1 "$version")
-  sed 's/%%VERSION%%/'"$recent"'/' <Dockerfile.tpl >"$version/Dockerfile"
-  cp -R src $version/
-
-  commit="$(git log -1 --format='format:%H' -- "$version")"
-  fullVersion="$(grep -m1 'ENV KIBANA_VERSION' "$version/Dockerfile" | cut -d' ' -f3)"
-
-  versionAliases=()
-  while [ "$fullVersion" != "$version" -a "${fullVersion%[-]*}" != "$fullVersion" ]; do
-    versionAliases+=( $fullVersion )
-    fullVersion="${fullVersion%[-]*}"
-  done
-  versionAliases+=( $version ${aliases[$version]} )
-
-  for va in "${versionAliases[@]}"; do
-    echo "$va: ${url}@${commit} $version"
-  done
+  dlVersion=$(echo $version | tr '.' '-')
+  if $(curl -fsSL https://www.elastic.co/downloads/past-releases/kibana-$dlVersion &>/dev/null); then
+    echo "${yellow}Updating version: ${version}${reset}"
+    cp -R src $version/
+    sed -e 's/%%VERSION%%/'"$version"'/' < Dockerfile.tpl > "$version/Dockerfile"
+  else
+    echo "${red}WARNING: Unable to find ${dlVersion} for ${version}${reset}"
+  fi
 done
+echo "${green}Complete${reset}"
