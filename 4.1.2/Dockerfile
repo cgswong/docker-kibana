@@ -4,7 +4,7 @@ FROM alpine:3.2
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
-ENV KIBANA_VERSION 4.1.1
+ENV KIBANA_VERSION 4.1.2
 ENV KIBANA_HOME /opt/kibana
 ENV KIBANA_USER kibana
 ENV KIBANA_GROUP kibana

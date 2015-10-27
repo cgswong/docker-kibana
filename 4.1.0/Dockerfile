@@ -1,8 +1,6 @@
-# ################################################################
-# DESC: Docker file to create Kibana image.
-# ################################################################
+# Docker file to create Kibana image.
 
-FROM alpine:latest
+FROM alpine:3.2
 MAINTAINER Stuart Wong <cgs.wong@gmail.com>
 
 # Variables
@@ -16,8 +14,14 @@ RUN apk --update add \
       curl \
       nodejs \
       bash && \
-    mkdir -p ${ES_VOL}/data ${ES_VOL}/logs ${ES_VOL}/plugins ${ES_VOL}/work ${ES_VOL}/config ${JAVA_BASE} /opt &&\
-    curl --silent --insecure --location https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz | tar zxf - -C /opt &&\
+    mkdir -p \
+      ${ES_VOL}/data \
+      ${ES_VOL}/logs \
+      ${ES_VOL}/plugins \
+      ${ES_VOL}/work \
+      ${ES_VOL}/config \
+      /opt &&\
+    curl -sSL --insecure https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz | tar zxf - -C /opt &&\
     ln -s /opt/kibana-${KIBANA_VERSION}-linux-x64 ${KIBANA_HOME} &&\
     mv ${KIBANA_HOME}/node/bin/node ${KIBANA_HOME}/node/bin/node.bak &&\
     ln -s /usr/bin/node ${KIBANA_HOME}/node/bin/node &&\
@@ -35,5 +39,5 @@ VOLUME ["${KIBANA_HOME}/config"]
 EXPOSE 5601
 
 # Start container
-ENTRYPOINT ["/usr/local/bin/kibana.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD [""]
