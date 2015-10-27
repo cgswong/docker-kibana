@@ -1,7 +1,9 @@
-#!/bin/bash
-# #################################################################
-# DESC: Kibana startup file.
-# #################################################################
+#!/usr/bin/env bash
+# Kibana startup file.
+
+# Setup shutdown handlers
+pid=0
+trap 'shutdown_handler' SIGTERM SIGINT
 
 # Fail hard, include pipelines
 #set -eo pipefail
@@ -10,22 +12,30 @@
 KIBANA_CFG_FILE="/opt/kibana/config/kibana.yml"
 
 if [ -z "$KIBANA_ELASTICSEARCH_URL" ]; then
-  echo "KIBANA_ELASTICSEARCH_URL not set, exiting."
+  echo "$(date +"[%F %X,000]")[WARN ][action.admin.container    ] environment variable KIBANA_ELASTICSEARCH_URL not set"
   exit 1
 fi
-echo "KIBANA_ELASTICSEARCH_URL=${KIBANA_ELASTICSEARCH_URL}"
+echo "$(date +"[%F %X,000]")[INFO ][action.admin.container    ] KIBANA_ELASTICSEARCH_URL=${KIBANA_ELASTICSEARCH_URL}"
 
 # Download the config file if given a URL
 if [ ! -z ${KIBANA_CFG_URL} ]; then
-  curl --location --silent --insecure --output ${KIBANA_CFG_FILE} ${KIBANA_CFG_URL}
+  curl -sSL --output ${KIBANA_CFG_FILE} ${KIBANA_CFG_URL}
   if [ $? -ne 0 ]; then
-    echo "[KIBANA] Unable to download file ${KIBANA_CFG_URL}."
+    echo "$(date +"[%F %X,000]")[WARN ][action.admin.container    ] Unable to download file ${KIBANA_CFG_URL}"
     exit 1
   fi
 fi
 
 # Reset/set to value to avoid errors in env processing
 KIBANA_CFG_URL=${KIBANA_CFG_FILE}
+
+shutdown_handler() {
+  # Handle Docker shutdown signals to allow correct exit codes upon container shutdown
+  echo "$(date +"[%F %X,000]")[INFO ][action.admin.container.shutdown   ] Requesting container shutdown"
+  kill -SIGINT "$pid"
+  echo "$(date +"[%F %X,000]")[INFO ][action.admin.container.shutdown   ] Container stopped"
+  exit 0
+}
 
 # Process environment variables
 for VAR in `env`; do
@@ -44,7 +54,12 @@ done
 
 # If there are any arguments then we want to run those instead
 if [ -z $1 ]; then
-  /opt/kibana/bin/kibana
+  exec /opt/kibana/bin/kibana &
+  pid=$!
+  echo "$(date +"[%F %X,000]")[INFO ][action.admin.container.startup    ] Started with PID: ${pid}"
+  wait ${pid}
+  trap - SIGTERM SIGINT
+  wait ${pid}
 else
   exec "$@"
 fi
