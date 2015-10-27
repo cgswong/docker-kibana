@@ -21,7 +21,7 @@ RUN apk --update add \
       ${ES_VOL}/work \
       ${ES_VOL}/config \
       /opt &&\
-    curl -sSL --insecure https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz | tar zxf - -C /opt &&\
+    curl -sSL https://download.elasticsearch.org/kibana/kibana/kibana-${KIBANA_VERSION}-linux-x64.tar.gz | tar zxf - -C /opt &&\
     ln -s /opt/kibana-${KIBANA_VERSION}-linux-x64 ${KIBANA_HOME} &&\
     mv ${KIBANA_HOME}/node/bin/node ${KIBANA_HOME}/node/bin/node.bak &&\
     ln -s /usr/bin/node ${KIBANA_HOME}/node/bin/node &&\
